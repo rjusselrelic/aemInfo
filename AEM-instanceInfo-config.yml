@@ -1,0 +1,14 @@
+integration_name: com.Ryan Jussel.instanceInfo
+
+instances:
+  - name: ip-172-31-4-157 
+    command: metrics
+    arguments:
+    labels:
+
+  - name: ip-172-31-4-157
+    command: inventory
+    arguments:
+    labels:
+	environment: test
+	customer: New Relic
