@@ -30,7 +30,7 @@ func getCQadminPass(user string) string {
 	cmd := exec.Command("/bin/sh", "-c", "pass "+user)
 	output, err := cmd.CombinedOutput()
 	if err != nil {
-		log.Fatal(err)
+		log.Error("Unable to obtain CQAdmin Password, check output of 'pass CQ_Admin'")
 	}
 	cqPass := strings.Trim(string(output), "\n")
 	return cqPass
@@ -50,7 +50,7 @@ func getBundleTxt(user string) string {
 	req.SetBasicAuth(user, passwd)
 	resp, err := client.Do(req)
 	if err != nil {
-		log.Info("Failed to access " + url)
+		log.Error("Failed to access " + url)
 		//log.Info(string(err))
 		return ""
 	}
@@ -62,7 +62,6 @@ func getBundleTxt(user string) string {
 func getAEMType(path string) string {
 	aemType := ""
 	if _, err := os.Stat(path + "publish"); err == nil {
-		// path/to/whatever does not exist
 		aemType = "publish"
 
 	} else {
@@ -90,11 +89,14 @@ func populateInventory(inventory sdk.Inventory) error {
 	cmd := exec.Command("/bin/sh", "-c", rawcmd)
 	output, err := cmd.CombinedOutput()
 	if err != nil {
-		log.Fatal(err)
+		log.Error("Problem with Command: " + rawcmd)
+	} else if len(output) > 0 {
+		oakVersion := strings.Trim(string(output), "\n")
+		log.Debug("Oak Version: ", oakVersion)
+		inventory.SetItem("Oak Version", "value", oakVersion)
+	} else {
+		log.Error("Problem with Command: " + rawcmd)
 	}
-	oakVersion := strings.Trim(string(output), "\n")
-	log.Debug("Oak Version: ", oakVersion)
-	inventory.SetItem("Oak Version", "value", oakVersion)
 
 	pscmd := "ps -eo args | grep java | grep -v grep"
 	cmd = exec.Command("/bin/sh", "-c", pscmd)
